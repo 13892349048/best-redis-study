@@ -233,14 +233,24 @@ what_redis_can_do/
 ---
 
 ## 参考资料
+
+### 官方资源
 - 官方文档：`https://redis.io/docs/latest/`
 - Redis 命令：`https://redis.io/commands/`
 - go-redis：`https://github.com/redis/go-redis`
 - Redis 开源工具：`https://github.com/oliver006/redis_exporter`
-- 高质量文章与书籍：
-  - Redis 设计与实现（黄健宏）
-  - Redis 深度历险
-  - 官方博客与 release note（关注持久化、复制、Cluster 变更）
+
+### 本项目文档
+- [Redis命令速查表](docs/redis-commands-cheatsheet.md) - 基础命令完整参考
+- [危险命令清单](docs/dangerous-commands.md) - 生产环境风险防范
+- [高级数据结构命令](docs/advanced-structures-commands.md) - Bitmap/HLL/Geo详细用法
+- [高级结构陷阱防范](docs/advanced-structures-pitfalls.md) - 性能陷阱与最佳实践
+- [高级结构快速参考](docs/advanced-structures-cheatcard.md) - 三分钟速查卡片
+
+### 高质量文章与书籍
+- Redis 设计与实现（黄健宏）
+- Redis 深度历险
+- 官方博客与 release note（关注持久化、复制、Cluster 变更）
 
 ---
 
