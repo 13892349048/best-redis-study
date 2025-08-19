@@ -10,7 +10,7 @@ import (
 )
 
 // Day 3 高级数据结构简化演示
-func main() {
+func main33() {
 	ctx := context.Background()
 
 	// 连接Redis
