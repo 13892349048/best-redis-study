@@ -8,31 +8,41 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+// CommandInfo 命令信息
+type CommandInfo struct {
+	Name   string
+	Args   []interface{}
+	Result redis.Cmder
+}
+
 // PipelineWrapper Pipeline封装器
 type PipelineWrapper struct {
-	client    *Client
-	pipeline  redis.Pipeliner
-	commands  []redis.Cmder
-	batchSize int
+	client      *Client
+	pipeline    redis.Pipeliner
+	commands    []redis.Cmder
+	commandInfo []CommandInfo // 新增：保存命令参数信息
+	batchSize   int
 }
 
 // NewPipeline 创建新的Pipeline
 func (c *Client) NewPipeline() *PipelineWrapper {
 	return &PipelineWrapper{
-		client:    c,
-		pipeline:  c.Pipeline(),
-		commands:  make([]redis.Cmder, 0),
-		batchSize: 100, // 默认批量大小
+		client:      c,
+		pipeline:    c.Pipeline(),
+		commands:    make([]redis.Cmder, 0),
+		commandInfo: make([]CommandInfo, 0),
+		batchSize:   100, // 默认批量大小
 	}
 }
 
 // NewTxPipeline 创建新的事务Pipeline
 func (c *Client) NewTxPipeline() *PipelineWrapper {
 	return &PipelineWrapper{
-		client:    c,
-		pipeline:  c.TxPipeline(),
-		commands:  make([]redis.Cmder, 0),
-		batchSize: 100,
+		client:      c,
+		pipeline:    c.TxPipeline(),
+		commands:    make([]redis.Cmder, 0),
+		commandInfo: make([]CommandInfo, 0),
+		batchSize:   100,
 	}
 }
 
@@ -46,6 +56,12 @@ func (p *PipelineWrapper) SetBatchSize(size int) *PipelineWrapper {
 func (p *PipelineWrapper) Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd {
 	cmd := p.pipeline.Set(ctx, key, value, expiration)
 	p.commands = append(p.commands, cmd)
+	// 保存命令信息用于分批执行
+	p.commandInfo = append(p.commandInfo, CommandInfo{
+		Name:   "SET",
+		Args:   []interface{}{key, value, expiration},
+		Result: cmd,
+	})
 	return cmd
 }
 
@@ -53,6 +69,11 @@ func (p *PipelineWrapper) Set(ctx context.Context, key string, value interface{}
 func (p *PipelineWrapper) Get(ctx context.Context, key string) *redis.StringCmd {
 	cmd := p.pipeline.Get(ctx, key)
 	p.commands = append(p.commands, cmd)
+	p.commandInfo = append(p.commandInfo, CommandInfo{
+		Name:   "GET",
+		Args:   []interface{}{key},
+		Result: cmd,
+	})
 	return cmd
 }
 
@@ -60,6 +81,11 @@ func (p *PipelineWrapper) Get(ctx context.Context, key string) *redis.StringCmd 
 func (p *PipelineWrapper) Del(ctx context.Context, keys ...string) *redis.IntCmd {
 	cmd := p.pipeline.Del(ctx, keys...)
 	p.commands = append(p.commands, cmd)
+	p.commandInfo = append(p.commandInfo, CommandInfo{
+		Name:   "DEL",
+		Args:   []interface{}{keys},
+		Result: cmd,
+	})
 	return cmd
 }
 
@@ -67,6 +93,11 @@ func (p *PipelineWrapper) Del(ctx context.Context, keys ...string) *redis.IntCmd
 func (p *PipelineWrapper) Incr(ctx context.Context, key string) *redis.IntCmd {
 	cmd := p.pipeline.Incr(ctx, key)
 	p.commands = append(p.commands, cmd)
+	p.commandInfo = append(p.commandInfo, CommandInfo{
+		Name:   "INCR",
+		Args:   []interface{}{key},
+		Result: cmd,
+	})
 	return cmd
 }
 
@@ -74,6 +105,11 @@ func (p *PipelineWrapper) Incr(ctx context.Context, key string) *redis.IntCmd {
 func (p *PipelineWrapper) HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd {
 	cmd := p.pipeline.HSet(ctx, key, values...)
 	p.commands = append(p.commands, cmd)
+	p.commandInfo = append(p.commandInfo, CommandInfo{
+		Name:   "HSET",
+		Args:   append([]interface{}{key}, values...),
+		Result: cmd,
+	})
 	return cmd
 }
 
@@ -81,6 +117,11 @@ func (p *PipelineWrapper) HSet(ctx context.Context, key string, values ...interf
 func (p *PipelineWrapper) HGet(ctx context.Context, key, field string) *redis.StringCmd {
 	cmd := p.pipeline.HGet(ctx, key, field)
 	p.commands = append(p.commands, cmd)
+	p.commandInfo = append(p.commandInfo, CommandInfo{
+		Name:   "HGET",
+		Args:   []interface{}{key, field},
+		Result: cmd,
+	})
 	return cmd
 }
 
@@ -88,6 +129,11 @@ func (p *PipelineWrapper) HGet(ctx context.Context, key, field string) *redis.St
 func (p *PipelineWrapper) LPush(ctx context.Context, key string, values ...interface{}) *redis.IntCmd {
 	cmd := p.pipeline.LPush(ctx, key, values...)
 	p.commands = append(p.commands, cmd)
+	p.commandInfo = append(p.commandInfo, CommandInfo{
+		Name:   "LPUSH",
+		Args:   append([]interface{}{key}, values...),
+		Result: cmd,
+	})
 	return cmd
 }
 
@@ -95,6 +141,11 @@ func (p *PipelineWrapper) LPush(ctx context.Context, key string, values ...inter
 func (p *PipelineWrapper) RPop(ctx context.Context, key string) *redis.StringCmd {
 	cmd := p.pipeline.RPop(ctx, key)
 	p.commands = append(p.commands, cmd)
+	p.commandInfo = append(p.commandInfo, CommandInfo{
+		Name:   "RPOP",
+		Args:   []interface{}{key},
+		Result: cmd,
+	})
 	return cmd
 }
 
@@ -102,6 +153,11 @@ func (p *PipelineWrapper) RPop(ctx context.Context, key string) *redis.StringCmd
 func (p *PipelineWrapper) SAdd(ctx context.Context, key string, members ...interface{}) *redis.IntCmd {
 	cmd := p.pipeline.SAdd(ctx, key, members...)
 	p.commands = append(p.commands, cmd)
+	p.commandInfo = append(p.commandInfo, CommandInfo{
+		Name:   "SADD",
+		Args:   append([]interface{}{key}, members...),
+		Result: cmd,
+	})
 	return cmd
 }
 
@@ -109,6 +165,11 @@ func (p *PipelineWrapper) SAdd(ctx context.Context, key string, members ...inter
 func (p *PipelineWrapper) ZAdd(ctx context.Context, key string, members ...redis.Z) *redis.IntCmd {
 	cmd := p.pipeline.ZAdd(ctx, key, members...)
 	p.commands = append(p.commands, cmd)
+	p.commandInfo = append(p.commandInfo, CommandInfo{
+		Name:   "ZADD",
+		Args:   []interface{}{key, members},
+		Result: cmd,
+	})
 	return cmd
 }
 
@@ -136,15 +197,22 @@ func (p *PipelineWrapper) Exec(ctx context.Context) ([]redis.Cmder, error) {
 
 // ExecBatch 分批执行Pipeline
 func (p *PipelineWrapper) ExecBatch(ctx context.Context) error {
-	if len(p.commands) == 0 {
+	if len(p.commandInfo) == 0 {
 		return fmt.Errorf("no commands in pipeline")
 	}
 
+	start := time.Now()
+	defer func() {
+		if p.client.metrics != nil {
+			p.client.metrics.RecordLatency(time.Since(start))
+		}
+	}()
+
 	// 分批执行
-	for i := 0; i < len(p.commands); i += p.batchSize {
+	for i := 0; i < len(p.commandInfo); i += p.batchSize {
 		end := i + p.batchSize
-		if end > len(p.commands) {
-			end = len(p.commands)
+		if end > len(p.commandInfo) {
+			end = len(p.commandInfo)
 		}
 
 		// 创建新的Pipeline用于当前批次
@@ -152,16 +220,92 @@ func (p *PipelineWrapper) ExecBatch(ctx context.Context) error {
 
 		// 添加当前批次的命令
 		for j := i; j < end; j++ {
-			// 注意：这里需要重新构建命令，因为pipeline不能直接添加已存在的命令
-			// 在实际使用中，应该保存命令的参数而不是命令本身
+			cmdInfo := p.commandInfo[j]
+			err := p.rebuildCommand(ctx, batchPipeline, cmdInfo)
+			if err != nil {
+				return fmt.Errorf("failed to rebuild command %s: %w", cmdInfo.Name, err)
+			}
 		}
 
+		// 执行当前批次
 		_, err := batchPipeline.Exec(ctx)
 		if err != nil {
 			return fmt.Errorf("batch execution failed at batch %d: %w", i/p.batchSize, err)
 		}
+
+		// 更新指标
+		if p.client.metrics != nil {
+			p.client.metrics.IncPipelineTotal()
+			p.client.metrics.AddPipelineBatch(int64(end - i))
+		}
 	}
 
+	return nil
+}
+
+// rebuildCommand 重建命令到新的Pipeline
+func (p *PipelineWrapper) rebuildCommand(ctx context.Context, pipeline redis.Pipeliner, cmdInfo CommandInfo) error {
+	switch cmdInfo.Name {
+	case "SET":
+		if len(cmdInfo.Args) >= 3 {
+			key := cmdInfo.Args[0].(string)
+			value := cmdInfo.Args[1]
+			expiration := cmdInfo.Args[2].(time.Duration)
+			pipeline.Set(ctx, key, value, expiration)
+		}
+	case "GET":
+		if len(cmdInfo.Args) >= 1 {
+			key := cmdInfo.Args[0].(string)
+			pipeline.Get(ctx, key)
+		}
+	case "DEL":
+		if len(cmdInfo.Args) >= 1 {
+			keys := cmdInfo.Args[0].([]string)
+			pipeline.Del(ctx, keys...)
+		}
+	case "INCR":
+		if len(cmdInfo.Args) >= 1 {
+			key := cmdInfo.Args[0].(string)
+			pipeline.Incr(ctx, key)
+		}
+	case "HSET":
+		if len(cmdInfo.Args) >= 2 {
+			key := cmdInfo.Args[0].(string)
+			values := cmdInfo.Args[1:]
+			pipeline.HSet(ctx, key, values...)
+		}
+	case "HGET":
+		if len(cmdInfo.Args) >= 2 {
+			key := cmdInfo.Args[0].(string)
+			field := cmdInfo.Args[1].(string)
+			pipeline.HGet(ctx, key, field)
+		}
+	case "LPUSH":
+		if len(cmdInfo.Args) >= 2 {
+			key := cmdInfo.Args[0].(string)
+			values := cmdInfo.Args[1:]
+			pipeline.LPush(ctx, key, values...)
+		}
+	case "RPOP":
+		if len(cmdInfo.Args) >= 1 {
+			key := cmdInfo.Args[0].(string)
+			pipeline.RPop(ctx, key)
+		}
+	case "SADD":
+		if len(cmdInfo.Args) >= 2 {
+			key := cmdInfo.Args[0].(string)
+			members := cmdInfo.Args[1:]
+			pipeline.SAdd(ctx, key, members...)
+		}
+	case "ZADD":
+		if len(cmdInfo.Args) >= 2 {
+			key := cmdInfo.Args[0].(string)
+			members := cmdInfo.Args[1].([]redis.Z)
+			pipeline.ZAdd(ctx, key, members...)
+		}
+	default:
+		return fmt.Errorf("unsupported command: %s", cmdInfo.Name)
+	}
 	return nil
 }
 
@@ -173,6 +317,7 @@ func (p *PipelineWrapper) Len() int {
 // Clear 清空Pipeline
 func (p *PipelineWrapper) Clear() {
 	p.commands = p.commands[:0]
+	p.commandInfo = p.commandInfo[:0]
 	// 重新创建pipeline
 	p.pipeline = p.client.Pipeline()
 }
