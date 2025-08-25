@@ -11,7 +11,7 @@ import (
 	"what_redis_can_do/internal/redisx"
 )
 
-func main() {
+func main4() {
 	fmt.Println("=== Day 4: Go 客户端基建（go-redis/v9）===")
 	fmt.Println()
 

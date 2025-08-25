@@ -8,7 +8,7 @@ import (
 	"what_redis_can_do/internal/redisx"
 )
 
-func main() {
+func main1() {
 	fmt.Println("=== 测试 Pipeline 错误修复 ===")
 
 	// 创建客户端
