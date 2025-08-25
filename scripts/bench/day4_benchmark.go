@@ -22,7 +22,7 @@ type BenchmarkComparison struct {
 	LatencyReduction float64                 `json:"latency_reduction"`
 }
 
-func main() {
+func main1() {
 	fmt.Println("=== Day 4: Redis Pipeline 性能基准测试 ===")
 	fmt.Println()
 

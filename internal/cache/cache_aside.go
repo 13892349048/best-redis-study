@@ -11,8 +11,9 @@ import (
 // CacheAside Cache-Aside装饰器
 // 这是一个通用的缓存装饰器，可以装饰任何数据加载函数
 type CacheAside struct {
-	cache   Cache
-	options *CacheAsideOptions
+	cache              Cache
+	options            *CacheAsideOptions
+	penetrationProtect *PenetrationProtection
 }
 
 // NewCacheAside 创建Cache-Aside装饰器
@@ -27,9 +28,28 @@ func NewCacheAside(cache Cache, opts *CacheAsideOptions) *CacheAside {
 	}
 }
 
+// NewCacheAsideWithProtection 创建Cache-Aside装饰器（带穿透防护）
+func NewCacheAsideWithProtection(cache Cache, opts *CacheAsideOptions, protection *PenetrationProtection) *CacheAside {
+	if opts == nil {
+		opts = DefaultCacheAsideOptions()
+	}
+
+	return &CacheAside{
+		cache:              cache,
+		options:            opts,
+		penetrationProtect: protection,
+	}
+}
+
 // GetOrLoad 获取缓存数据，缓存未命中时调用加载函数
 // 这是Cache-Aside模式的核心方法
 func (ca *CacheAside) GetOrLoad(ctx context.Context, key string, dest interface{}, loader LoaderFunc) error {
+	// 如果启用了穿透防护，使用防护版本
+	if ca.penetrationProtect != nil {
+		return ca.penetrationProtect.GetOrLoad(ctx, key, dest, loader)
+	}
+
+	// 传统版本
 	// 1. 首先尝试从缓存获取
 	err := ca.cache.Get(ctx, key, dest)
 	if err == nil {

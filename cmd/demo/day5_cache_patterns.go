@@ -73,7 +73,7 @@ func (s *UserService) SaveUser(ctx context.Context, user *User) error {
 	return nil
 }
 
-func main() {
+func main5() {
 	// 初始化Redis客户端
 	client, err := redisx.NewClient(redisx.DefaultConfig())
 	if err != nil {
