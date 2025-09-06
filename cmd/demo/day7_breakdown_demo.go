@@ -117,7 +117,7 @@ type TestResult struct {
 	LogicalExpireHits int64         `json:"logical_expire_hits"`
 }
 
-func main() {
+func main7() {
 	// 创建Redis客户端
 	client, err := redisx.NewClient(&redisx.Config{
 		Addr:     "localhost:6379",

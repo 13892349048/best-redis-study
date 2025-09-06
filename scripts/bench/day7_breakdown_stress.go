@@ -510,7 +510,7 @@ func (str *StressTestRunner) printStressComparisonReport(results []*StressTestRe
 	}
 }
 
-func main() {
+func main7777() {
 	// 极端击穿场景配置 - 修改关键参数使击穿更明显
 	config := StressTestConfig{
 		ConcurrentUsers:  50,                     // 减少并发，避免过多日志

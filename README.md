@@ -113,7 +113,7 @@ what_redis_can_do/
 - 验收标准：
   - 在高并发压测下，热点 Key 到期不产生毛刺
 
-### Day 8｜缓存雪崩治理
+### Day 8｜缓存雪崩治理 ✅
 - 目标：处理大面积同时过期导致的崩溃风险
 - 理论要点：TTL 抖动、分片过期、预热、限流/降级
 - 实操：
@@ -246,6 +246,7 @@ what_redis_can_do/
 - [高级数据结构命令](docs/advanced-structures-commands.md) - Bitmap/HLL/Geo详细用法
 - [高级结构陷阱防范](docs/advanced-structures-pitfalls.md) - 性能陷阱与最佳实践
 - [高级结构快速参考](docs/advanced-structures-cheatcard.md) - 三分钟速查卡片
+- [缓存雪崩防护指南](docs/cache-avalanche-protection.md) - 完整雪崩防护方案
 
 ### 高质量文章与书籍
 - Redis 设计与实现（黄健宏）

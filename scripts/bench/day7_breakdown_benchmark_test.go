@@ -17,8 +17,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// BenchmarkConfig 基准测试配置
-type BenchmarkConfig struct {
+// BenchmarkConfig7 基准测试配置
+type BenchmarkConfig7 struct {
 	ConcurrentUsers int           `json:"concurrent_users"`
 	TestDuration    time.Duration `json:"test_duration"`
 	HotKeyCount     int           `json:"hot_key_count"`
@@ -29,10 +29,10 @@ type BenchmarkConfig struct {
 	OutputFile      string        `json:"output_file"`
 }
 
-// BenchmarkResult 基准测试结果
-type BenchmarkResult struct {
+// BenchmarkResult7 基准测试结果
+type BenchmarkResult7 struct {
 	Strategy              string              `json:"strategy"`
-	Config                BenchmarkConfig     `json:"config"`
+	Config                BenchmarkConfig7    `json:"config"`
 	TotalRequests         int64               `json:"total_requests"`
 	SuccessfulRequests    int64               `json:"successful_requests"`
 	FailedRequests        int64               `json:"failed_requests"`
@@ -131,13 +131,13 @@ func (mds *MockDataService) ResetQueryCount() {
 
 // BenchmarkRunner 基准测试运行器
 type BenchmarkRunner struct {
-	config      BenchmarkConfig
+	config      BenchmarkConfig7
 	dataService *MockDataService
 	client      redis.Cmdable
 }
 
 // NewBenchmarkRunner 创建基准测试运行器
-func NewBenchmarkRunner(config BenchmarkConfig) (*BenchmarkRunner, error) {
+func NewBenchmarkRunner(config BenchmarkConfig7) (*BenchmarkRunner, error) {
 	// 创建Redis客户端
 	client, err := redisx.NewClient(&redisx.Config{
 		Addr:     config.RedisAddress,
@@ -160,9 +160,9 @@ func NewBenchmarkRunner(config BenchmarkConfig) (*BenchmarkRunner, error) {
 }
 
 // RunBenchmark 运行基准测试
-func (br *BenchmarkRunner) RunBenchmark() (*BenchmarkResult, error) {
+func (br *BenchmarkRunner) RunBenchmark() (*BenchmarkResult7, error) {
 	strategies := []string{"no_protection", "singleflight", "logical_expire"}
-	var results []*BenchmarkResult
+	var results []*BenchmarkResult7
 
 	for _, strategy := range strategies {
 		fmt.Printf("🧪 Running benchmark for strategy: %s\n", strategy)
@@ -202,7 +202,7 @@ func (br *BenchmarkRunner) RunBenchmark() (*BenchmarkResult, error) {
 }
 
 // runSingleStrategy 运行单个策略的测试
-func (br *BenchmarkRunner) runSingleStrategy(strategy string) (*BenchmarkResult, error) {
+func (br *BenchmarkRunner) runSingleStrategy(strategy string) (*BenchmarkResult7, error) {
 	// 创建缓存组件
 	redisCache := cache.NewRedisCache(br.client, cache.DefaultCacheAsideOptions())
 
@@ -310,7 +310,7 @@ func (br *BenchmarkRunner) runSingleStrategy(strategy string) (*BenchmarkResult,
 	// 创建响应时间直方图
 	histogram := br.createResponseTimeHistogram(responseTimes)
 
-	result := &BenchmarkResult{
+	result := &BenchmarkResult7{
 		Strategy:              strategy,
 		Config:                br.config,
 		TotalRequests:         totalRequests,
@@ -430,7 +430,7 @@ func (br *BenchmarkRunner) createResponseTimeHistogram(responseTimes []time.Dura
 }
 
 // printResult 打印结果
-func (br *BenchmarkRunner) printResult(result *BenchmarkResult) {
+func (br *BenchmarkRunner) printResult(result *BenchmarkResult7) {
 	fmt.Printf("📊 Strategy: %s\n", result.Strategy)
 	fmt.Printf("   Total Requests: %d\n", result.TotalRequests)
 	fmt.Printf("   Successful: %d\n", result.SuccessfulRequests)
@@ -454,7 +454,7 @@ func (br *BenchmarkRunner) printResult(result *BenchmarkResult) {
 }
 
 // printComparisonReport 打印对比报告
-func (br *BenchmarkRunner) printComparisonReport(results []*BenchmarkResult) {
+func (br *BenchmarkRunner) printComparisonReport(results []*BenchmarkResult7) {
 	fmt.Println("📈 Breakdown Protection Benchmark Comparison Report")
 	fmt.Println("=" + fmt.Sprintf("%*s", 80, "="))
 
@@ -497,7 +497,7 @@ func (br *BenchmarkRunner) printComparisonReport(results []*BenchmarkResult) {
 }
 
 // saveResults 保存结果到文件
-func (br *BenchmarkRunner) saveResults(results []*BenchmarkResult) error {
+func (br *BenchmarkRunner) saveResults(results []*BenchmarkResult7) error {
 	data, err := json.MarshalIndent(map[string]interface{}{
 		"benchmark_config": br.config,
 		"results":          results,
@@ -514,7 +514,7 @@ func (br *BenchmarkRunner) saveResults(results []*BenchmarkResult) error {
 }
 
 func main7() {
-	config := BenchmarkConfig{
+	config := BenchmarkConfig7{
 		ConcurrentUsers: 50,
 		TestDuration:    30 * time.Second,
 		HotKeyCount:     10,  // 前10个Key作为热点

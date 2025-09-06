@@ -104,7 +104,7 @@ func main5() {
 	demonstrateWriteBehind(ctx, client, UserDay5aService)
 
 	fmt.Println("\n📚 4. TTL抖动效果演示")
-	demonstrateTTLJitter(ctx, client)
+	demonstrateTTLJitter1(ctx, client)
 
 	fmt.Println("\n📚 5. 缓存指标统计演示")
 	demonstrateCacheMetrics(ctx, client, UserDay5aService)
@@ -337,7 +337,7 @@ func demonstrateWriteBehind(ctx context.Context, client redis.Cmdable, UserDay5a
 }
 
 // demonstrateTTLJitter 演示TTL抖动效果
-func demonstrateTTLJitter(ctx context.Context, client redis.Cmdable) {
+func demonstrateTTLJitter1(ctx context.Context, client redis.Cmdable) {
 	fmt.Println("TTL抖动演示: 防止缓存雪崩，TTL会在基准值附近随机波动")
 
 	// 创建带抖动的缓存
