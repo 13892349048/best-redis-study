@@ -1,0 +1,128 @@
+{
+  "benchmark_config": {
+    "concurrent_users": 50,
+    "test_duration": 30000000000,
+    "hot_key_count": 10,
+    "hot_key_ratio": 0.8,
+    "cache_expire_ttl": 600000000000,
+    "db_query_delay": 50000000,
+    "redis_address": "localhost:6379",
+    "output_file": "benchmark_results/breakdown_benchmark_20250825_164424.json"
+  },
+  "results": [
+    {
+      "strategy": "no_protection",
+      "config": {
+        "concurrent_users": 50,
+        "test_duration": 30000000000,
+        "hot_key_count": 10,
+        "hot_key_ratio": 0.8,
+        "cache_expire_ttl": 600000000000,
+        "db_query_delay": 50000000,
+        "redis_address": "localhost:6379",
+        "output_file": "benchmark_results/breakdown_benchmark_20250825_164424.json"
+      },
+      "total_requests": 199636,
+      "successful_requests": 199636,
+      "failed_requests": 0,
+      "db_queries": 9897,
+      "cache_hits": 189739,
+      "cache_hit_rate": 95.04247730870183,
+      "avg_response_time": 2587092,
+      "p50_response_time": 70587,
+      "p90_response_time": 159808,
+      "p95_response_time": 734125,
+      "p99_response_time": 50987385,
+      "max_response_time": 54080309,
+      "qps": 6652.361989297048,
+      "response_time_histogram": {
+        "≤100ms": 9897,
+        "≤1ms": 189711,
+        "≤5ms": 28
+      },
+      "timestamp": "2025-08-25T16:45:11.712616719+08:00"
+    },
+    {
+      "strategy": "singleflight",
+      "config": {
+        "concurrent_users": 50,
+        "test_duration": 30000000000,
+        "hot_key_count": 10,
+        "hot_key_ratio": 0.8,
+        "cache_expire_ttl": 600000000000,
+        "db_query_delay": 50000000,
+        "redis_address": "localhost:6379",
+        "output_file": "benchmark_results/breakdown_benchmark_20250825_164424.json"
+      },
+      "total_requests": 200154,
+      "successful_requests": 200154,
+      "failed_requests": 0,
+      "db_queries": 9826,
+      "cache_hits": 190328,
+      "cache_hit_rate": 95.09078009932352,
+      "avg_response_time": 2570511,
+      "p50_response_time": 64887,
+      "p90_response_time": 140765,
+      "p95_response_time": 589256,
+      "p99_response_time": 50977736,
+      "max_response_time": 51946068,
+      "qps": 6660.767540038851,
+      "singleflight_stats": {
+        "hits": 33954,
+        "misses": 166200,
+        "timeouts": 0,
+        "errors": 0
+      },
+      "response_time_histogram": {
+        "≤100ms": 9858,
+        "≤10ms": 8,
+        "≤1ms": 190233,
+        "≤50ms": 49,
+        "≤5ms": 6
+      },
+      "timestamp": "2025-08-25T16:46:02.517965385+08:00"
+    },
+    {
+      "strategy": "logical_expire",
+      "config": {
+        "concurrent_users": 50,
+        "test_duration": 30000000000,
+        "hot_key_count": 10,
+        "hot_key_ratio": 0.8,
+        "cache_expire_ttl": 600000000000,
+        "db_query_delay": 50000000,
+        "redis_address": "localhost:6379",
+        "output_file": "benchmark_results/breakdown_benchmark_20250825_164424.json"
+      },
+      "total_requests": 199440,
+      "successful_requests": 199440,
+      "failed_requests": 0,
+      "db_queries": 9895,
+      "cache_hits": 189545,
+      "cache_hit_rate": 95.03860810268753,
+      "avg_response_time": 2599600,
+      "p50_response_time": 81227,
+      "p90_response_time": 172192,
+      "p95_response_time": 949271,
+      "p99_response_time": 51003804,
+      "max_response_time": 53434916,
+      "qps": 6640.637806648167,
+      "logical_expire_stats": {
+        "hits": 189545,
+        "expired_hits": 0,
+        "refresh_count": 0,
+        "expired_count": 0
+      },
+      "response_time_histogram": {
+        "≤100ms": 9895,
+        "≤1ms": 189479,
+        "≤5ms": 66
+      },
+      "timestamp": "2025-08-25T16:46:51.493577475+08:00"
+    }
+  ],
+  "summary": {
+    "strategies_tested": 3,
+    "timestamp": "2025-08-25T16:46:53.49472286+08:00"
+  }
+}

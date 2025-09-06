@@ -19,8 +19,8 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// BenchmarkResult 基准测试结果
-type BenchmarkResult struct {
+// BenchmarkResultDay6 基准测试结果
+type BenchmarkResultDay6 struct {
 	Scenario        string        `json:"scenario"`
 	Duration        time.Duration `json:"duration"`
 	TotalRequests   int64         `json:"total_requests"`
@@ -36,8 +36,8 @@ type BenchmarkResult struct {
 	CacheHits       int64         `json:"cache_hits"`
 }
 
-// BenchmarkConfig 基准测试配置
-type BenchmarkConfig struct {
+// BenchmarkConfigDay6 基准测试配置
+type BenchmarkConfigDay6 struct {
 	Concurrency       int           `json:"concurrency"`
 	Duration          time.Duration `json:"duration"`
 	ExistingKeyRatio  float64       `json:"existing_key_ratio"` // 存在key的比例
@@ -200,7 +200,7 @@ func (kg *KeyGenerator) NextKey() string {
 }
 
 // runBenchmark 运行基准测试
-func runBenchmark(scenario string, config *BenchmarkConfig, dataSource *MockDataSource, cacheLoader func(ctx context.Context, key string, dest interface{}, loader cache.LoaderFunc) error) *BenchmarkResult {
+func runBenchmark(scenario string, config *BenchmarkConfigDay6, dataSource *MockDataSource, cacheLoader func(ctx context.Context, key string, dest interface{}, loader cache.LoaderFunc) error) *BenchmarkResultDay6 {
 	fmt.Printf("运行场景: %s\n", scenario)
 
 	var (
@@ -267,7 +267,7 @@ func runBenchmark(scenario string, config *BenchmarkConfig, dataSource *MockData
 	p50, p95, p99 := latencyTracker.GetPercentiles()
 	dataSourceHits := dataSource.GetHitCount()
 
-	return &BenchmarkResult{
+	return &BenchmarkResultDay6{
 		Scenario:        scenario,
 		Duration:        actualDuration,
 		TotalRequests:   totalRequests,
@@ -283,7 +283,8 @@ func runBenchmark(scenario string, config *BenchmarkConfig, dataSource *MockData
 	}
 }
 
-func main() {
+func main6() {
+
 	fmt.Println("=== Day 6: 缓存穿透防护压力测试 ===")
 
 	// 创建Redis客户端
@@ -300,7 +301,7 @@ func main() {
 	client.FlushDB(context.Background())
 
 	// 测试配置
-	config := &BenchmarkConfig{
+	config := &BenchmarkConfigDay6{
 		Concurrency:       20,
 		Duration:          30 * time.Second,
 		ExistingKeyRatio:  0.7, // 70%的请求是存在的key
@@ -317,7 +318,7 @@ func main() {
 	// 创建基础缓存
 	redisCache := cache.NewRedisCache(client, cache.DefaultCacheAsideOptions())
 
-	var results []*BenchmarkResult
+	var results []*BenchmarkResultDay6
 
 	// 场景1: 无防护
 	fmt.Println("\n=== 场景1: 无防护 ===")
@@ -410,7 +411,7 @@ func main() {
 	testBloomFilterPerformance(client)
 }
 
-func printResults(results []*BenchmarkResult) {
+func printResults(results []*BenchmarkResultDay6) {
 	fmt.Printf("%-15s %-10s %-10s %-10s %-10s %-10s %-10s %-10s %-10s\n",
 		"场景", "QPS", "平均延迟", "P50", "P95", "P99", "成功率", "缓存命中", "数据源查询")
 	fmt.Println(strings.Repeat("-", 120))
@@ -433,7 +434,7 @@ func printResults(results []*BenchmarkResult) {
 	}
 }
 
-func saveResults(results []*BenchmarkResult, config *BenchmarkConfig) {
+func saveResults(results []*BenchmarkResultDay6, config *BenchmarkConfigDay6) {
 	data := map[string]interface{}{
 		"timestamp": time.Now().Format(time.RFC3339),
 		"config":    config,
