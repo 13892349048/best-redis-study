@@ -133,13 +133,13 @@ what_redis_can_do/
 - 验收标准：
   - 多故障注入下仍无超卖与重复写
 
-### Day 10｜分布式锁正确用法
+### Day 10｜分布式锁正确用法 ✅
 - 目标：实现可用于生产的锁
 - 理论要点：SET NX PX + 续租、租约漂移、Fencing Token；RedLock 争议
 - 实操：
   - 在 `internal/lock` 实现锁：获取、自动续租、心跳、释放、Fencing Token 校验
 - 复盘问题：
-  - 为什么仅“释放脚本 + value 比对”还不够？
+  - 为什么仅"释放脚本 + value 比对"还不够？
 - 验收标准：
   - 故障注入（GC 停顿/网络分区）下无双写
 
@@ -247,6 +247,7 @@ what_redis_can_do/
 - [高级结构陷阱防范](docs/advanced-structures-pitfalls.md) - 性能陷阱与最佳实践
 - [高级结构快速参考](docs/advanced-structures-cheatcard.md) - 三分钟速查卡片
 - [缓存雪崩防护指南](docs/cache-avalanche-protection.md) - 完整雪崩防护方案
+- [Day 10学习总结](day10-summary.md) - 分布式锁完整实现与最佳实践
 
 ### 高质量文章与书籍
 - Redis 设计与实现（黄健宏）
